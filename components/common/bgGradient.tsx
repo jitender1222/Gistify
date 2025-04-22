@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-const BgGradient = ({ className }: { className?: String }) => {
+const BgGradient = ({ className }: { className?: string }) => {
   return (
     <div className="pointer-events-none absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-30">
       <div
