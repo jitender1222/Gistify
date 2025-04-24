@@ -22,7 +22,9 @@ const fileUploadSchema = z.object({
 const UploadForm = () => {
   const { startUpload, routeConfig } = useUploadThing("pdfUploader", {
     onClientUploadComplete: () => {
-      alert("uploaded successfully!");
+      toast.success("Uploaded successfully", {
+        description: "Whooo 🥳 Pdf file uploaded successfully",
+      });
     },
     onUploadError: (err) => {
       console.log("error occurred while uploading", err);
@@ -67,7 +69,8 @@ const UploadForm = () => {
     });
 
     const summary = await generatePdfSummary(resp);
-    console.log("respo", resp);
+    // console.log("respo", resp);
+    // console.log("summa", summary);
   };
   return (
     <div className="flex flex-col gap-8 w-full max-w-2xl mx-auto">
