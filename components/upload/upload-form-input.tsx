@@ -3,13 +3,13 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "../ui/input";
 
-interface UploadFormInput {
+interface UploadFormInputs {
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 }
 
-const UploadFormInput = ({ onSubmit }: UploadFormInput) => {
+const UploadFormInput = ({ onSubmit }: UploadFormInputs) => {
   return (
-    <form className="flex flex-col gap-6 ">
+    <form className="flex flex-col gap-6 " onSubmit={onSubmit}>
       <div className="flex gap-2 items-center">
         <Input
           type="file"
