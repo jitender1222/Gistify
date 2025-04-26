@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { z } from "zod";
 import { generatePdfSummary } from "@/actions/upload-actions";
+import { useRef, useState } from "react";
 
 const fileUploadSchema = z.object({
   file: z
@@ -20,6 +21,8 @@ const fileUploadSchema = z.object({
 });
 
 const UploadForm = () => {
+  const formRef = useRef<HTMLFormElement>(null);
+  const [loading, setLoading] = useState(false);
   const { startUpload, routeConfig } = useUploadThing("pdfUploader", {
     onClientUploadComplete: () => {
       toast.success("Uploaded successfully", {
@@ -38,43 +41,68 @@ const UploadForm = () => {
   });
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Submitted");
-    const formData = new FormData(e.currentTarget);
-    const file = formData.get("file") as File;
-    const isValidated = fileUploadSchema.safeParse({ file });
+    try {
+      setLoading(true);
+      console.log("Submitted");
+      const formData = new FormData(e.currentTarget);
+      const file = formData.get("file") as File;
+      const isValidated = fileUploadSchema.safeParse({ file });
 
-    if (!isValidated.success) {
-      toast.error("❌ something went wrong", {
-        description:
-          isValidated.error.flatten().fieldErrors.file?.[0] ?? "Invalid error",
+      if (!isValidated.success) {
+        toast.error("❌ something went wrong", {
+          description:
+            isValidated.error.flatten().fieldErrors.file?.[0] ??
+            "Invalid error",
+        });
+        setLoading(false);
+        return;
+      }
+
+      toast.message("📄 uploading pdf...", {
+        description: "We are uploading your pdf",
       });
-      return;
-    }
 
-    toast.message("📄 uploading pdf...", {
-      description: "We are uploading your pdf",
-    });
+      const resp = await startUpload([file]);
 
-    const resp = await startUpload([file]);
+      if (!resp) {
+        toast.error("Something went wrong", {
+          description: "Please use a different file",
+        });
+        setLoading(false);
+        return;
+      }
 
-    if (!resp) {
-      toast.error("Something went wrong", {
-        description: "Please use a different file",
+      toast.message("📄 pdf uploaded successfully ✅", {
+        description: "Hang tight! Our AI is reading through your document!✨",
       });
-      return;
+
+      const result = await generatePdfSummary(resp);
+      console.log({ result });
+
+      const { data = null, message = null } = result || {};
+
+      if (data) {
+        toast.message("📄 Saving PDF ✅", {
+          description: "Hang tight! we are saving your summary✨",
+        });
+        formRef.current?.reset();
+        // if(data.summary){
+
+        // }
+      }
+    } catch (error) {
+      setLoading(false);
+      console.log("error", error);
+      formRef.current?.reset();
     }
-
-    toast.message("📄 pdf uploaded successfully ✅", {
-      description: "Hang tight! Our AI is reading through your document!✨",
-    });
-
-    const summary = await generatePdfSummary(resp);
-    // console.log("respo", resp);
-    // console.log("summa", summary);
   };
   return (
     <div className="flex flex-col gap-8 w-full max-w-2xl mx-auto">
-      <UploadFormInput onSubmit={handleFormSubmit} />
+      <UploadFormInput
+        isLoading={loading}
+        formRef={formRef}
+        onSubmit={handleFormSubmit}
+      />
     </div>
   );
 };
