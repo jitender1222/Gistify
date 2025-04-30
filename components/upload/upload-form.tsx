@@ -5,7 +5,7 @@ import UploadFormInput from "./upload-form-input";
 import { toast } from "sonner";
 
 import { z } from "zod";
-import { generatePdfSummary } from "@/actions/upload-actions";
+import { generatePdfSummary, storePDFSummary } from "@/actions/upload-actions";
 import { useRef, useState } from "react";
 
 const fileUploadSchema = z.object({
@@ -85,10 +85,21 @@ const UploadForm = () => {
         toast.message("📄 Saving PDF ✅", {
           description: "Hang tight! we are saving your summary✨",
         });
-        formRef.current?.reset();
-        // if(data.summary){
 
-        // }
+        if (data.summary) {
+          await storePDFSummary({
+            summary: data.summary,
+            fileUrl: resp[0].serverData.file.url,
+            title: data.title,
+            fileName: file.name,
+          });
+          toast.message("Summary Generated", {
+            description:
+              "Your PDF Summary has been summarized and saved successfully",
+          });
+
+          formRef.current?.reset();
+        }
       }
     } catch (error) {
       setLoading(false);

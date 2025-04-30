@@ -1,6 +1,6 @@
 import { neon } from "@neondatabase/serverless";
 
-async function getDbConnection() {
+export async function getDbConnection() {
   if (!process.env.DATABASE_URL) {
     throw new Error("Something went wrong.Db is not connected");
   }
