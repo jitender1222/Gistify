@@ -6,12 +6,13 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 export async function generatePdfSummaryFromGEMINI(pdfText: string) {
   try {
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-pro-002",
+      model: "gemini-2.0-flash",
       generationConfig: {
         temperature: 0.7,
         maxOutputTokens: 1500,
       },
     });
+    console.log("inside model", model);
     const prompt = {
       contents: [
         {
@@ -27,8 +28,9 @@ export async function generatePdfSummaryFromGEMINI(pdfText: string) {
         },
       ],
     };
-
+    console.log("prompt", prompt);
     const result = await model.generateContent(prompt);
+    console.log("respnse Gemini", result);
     const response = await result.response;
 
     if (!response.text()) {
@@ -38,5 +40,4 @@ export async function generatePdfSummaryFromGEMINI(pdfText: string) {
   } catch (error) {
     console.log("error while generating the code", error);
   }
-  return;
 }

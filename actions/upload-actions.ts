@@ -9,8 +9,8 @@ import { auth } from "@clerk/nextjs/server";
 
 interface PDfSummaryType {
   userId?: string;
-  fileUrl: string;
   summary: string;
+  fileUrl: string;
   title: string;
   fileName: string;
 }
@@ -56,15 +56,15 @@ export const generatePdfSummary = async (
     console.log("pdfText", pdfText);
     let summary;
     try {
-      summary = await generateSummaryFromOpenAI(pdfText);
+      summary = await generatePdfSummaryFromGEMINI(pdfText);
       console.log("summary", summary);
     } catch (error) {
       console.log("error", error);
       if (error instanceof Error && error.message === "RATE_LIMIT_EXCEEDED") {
         try {
-          summary = await generatePdfSummaryFromGEMINI(pdfText);
+          summary = await generateSummaryFromOpenAI(pdfText);
         } catch (error) {
-          console.log("Gemini API failed after OpenAI quota exceeded", error);
+          console.log("OpenAI quota exceeded after GEMINI API failed ", error);
         }
         throw new Error(
           "Failed to generate summary with available AI providers"
@@ -100,14 +100,14 @@ export const generatePdfSummary = async (
 
 const savedPdfSummary = async ({
   userId,
-  fileUrl,
   summary,
+  fileUrl,
   title,
   fileName,
 }: {
   userId: string;
-  fileUrl: string;
   summary: string;
+  fileUrl: string;
   title: string;
   fileName: string;
 }) => {
@@ -115,26 +115,25 @@ const savedPdfSummary = async ({
     const sql = await getDbConnection();
     await sql`INSERT into pdf_summaries(
       user_id,
-      original_file_url,
       summary_text,
+      original_file_url,
       title,
       file_name
     ) VALUES(
-      ${userId}
-      ${fileUrl}
-      ${summary}
-      ${title}
+      ${userId},
+      ${summary},
+      ${fileUrl},
+      ${title},
       ${fileName}
     ) `;
   } catch (error) {
     console.log("error while saving the pdf", error);
   }
-  const sql = await getDbConnection();
 };
 
 export const storePDFSummary = async ({
-  fileUrl,
   summary,
+  fileUrl,
   title,
   fileName,
 }: PDfSummaryType) => {

@@ -35,7 +35,7 @@ const UploadForm = () => {
         description: err.message,
       });
     },
-    onUploadBegin: ({ file }) => {
+    onUploadBegin: ({ file }: any) => {
       console.log("upload has begun for", file);
     },
   });
@@ -43,9 +43,9 @@ const UploadForm = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      console.log("Submitted");
       const formData = new FormData(e.currentTarget);
       const file = formData.get("file") as File;
+
       const isValidated = fileUploadSchema.safeParse({ file });
 
       if (!isValidated.success) {
@@ -58,11 +58,12 @@ const UploadForm = () => {
         return;
       }
 
-      toast.message("📄 uploading pdf...", {
+      await toast.message("📄 uploading pdf...", {
         description: "We are uploading your pdf",
       });
 
       const resp = await startUpload([file]);
+      console.log("resp", resp);
 
       if (!resp) {
         toast.error("Something went wrong", {
@@ -72,12 +73,14 @@ const UploadForm = () => {
         return;
       }
 
-      toast.message("📄 pdf uploaded successfully ✅", {
+      await toast.message("📄 pdf uploaded successfully ✅", {
         description: "Hang tight! Our AI is reading through your document!✨",
       });
 
+      // AI code starts
+
       const result = await generatePdfSummary(resp);
-      console.log({ result });
+      console.log("result", { result });
 
       const { data = null, message = null } = result || {};
 
@@ -86,22 +89,26 @@ const UploadForm = () => {
           description: "Hang tight! we are saving your summary✨",
         });
 
+        console.log("data", data);
+
         if (data.summary) {
           await storePDFSummary({
             summary: data.summary,
             fileUrl: resp[0].serverData.file.url,
             title: data.title,
-            fileName: file.name,
+            fileName: resp[0].serverData.file.name,
           });
           toast.message("Summary Generated", {
             description:
-              "Your PDF Summary has been summarized and saved successfully",
+              "🥳 Your PDF Summary has been summarized and saved successfully",
           });
 
           formRef.current?.reset();
+          setLoading(false);
         }
       }
     } catch (error) {
+      toast.error("Error while saving the file");
       setLoading(false);
       console.log("error", error);
       formRef.current?.reset();
