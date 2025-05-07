@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { generatePdfSummary, storePDFSummary } from "@/actions/upload-actions";
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const fileUploadSchema = z.object({
   file: z
@@ -23,6 +24,7 @@ const fileUploadSchema = z.object({
 const UploadForm = () => {
   const formRef = useRef<HTMLFormElement>(null);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const { startUpload, routeConfig } = useUploadThing("pdfUploader", {
     onClientUploadComplete: () => {
       toast.success("Uploaded successfully", {
@@ -85,25 +87,27 @@ const UploadForm = () => {
       const { data = null, message = null } = result || {};
 
       if (data) {
+        let storeResult: any;
         toast.message("📄 Saving PDF ✅", {
           description: "Hang tight! we are saving your summary✨",
         });
 
         console.log("data", data);
-
         if (data.summary) {
-          await storePDFSummary({
+          storeResult = await storePDFSummary({
             summary: data.summary,
             fileUrl: resp[0].serverData.file.url,
             title: data.title,
             fileName: resp[0].serverData.file.name,
           });
+          console.log("storeresu;lt", storeResult);
           toast.message("Summary Generated", {
             description:
               "🥳 Your PDF Summary has been summarized and saved successfully",
           });
 
           formRef.current?.reset();
+          router.push(`/summaries/${storeResult.data.id}`);
           setLoading(false);
         }
       }
