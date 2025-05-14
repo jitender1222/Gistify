@@ -12,7 +12,6 @@ export async function generatePdfSummaryFromGEMINI(pdfText: string) {
         maxOutputTokens: 1500,
       },
     });
-    console.log("inside model", model);
     const prompt = {
       contents: [
         {
@@ -28,7 +27,6 @@ export async function generatePdfSummaryFromGEMINI(pdfText: string) {
         },
       ],
     };
-    console.log("prompt", prompt);
     const result = await model.generateContent(prompt);
     console.log("respnse Gemini", result);
     const response = await result.response;

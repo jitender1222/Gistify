@@ -39,8 +39,8 @@ export default function SummaryHeader({
             {readingTime} min read
           </div>
         </div>
-        <h1 className="text-2xl lg:text-4xl font-bold lg:tracking-tight">
-          <span className="bg-linear-to-r from-rose-600 to-orange-600 ">
+        <h1 className="text-sm sm:text-xl lg:text-4xl font-bold max-w-full px-4">
+          <span className=" bg-linear-to-r from-rose-600 to-orange-600 text-transparent bg-clip-text">
             {title}
           </span>{" "}
         </h1>

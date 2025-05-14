@@ -25,7 +25,6 @@ export default async function SummaryPage(props: {
     original_file_url,
   } = summary;
   const readingTime = Math.ceil((word_count || 0) / 200);
-  console.log("fileUrl", original_file_url);
 
   return (
     <div className="relative isolate min-h-screen bg-linear-to-b from-rose-50/40 to-white">

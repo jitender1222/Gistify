@@ -5,7 +5,6 @@ import { currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
 export async function deleteSummary({ summaryId }: { summaryId: string }) {
-  console.log("summary", summaryId);
   try {
     const user = await currentUser();
     const userId = user?.id;
