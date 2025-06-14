@@ -2,10 +2,28 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import Link from "next/link";
+import {
+  MotionDiv,
+  MotionH1,
+  MotionH2,
+  MotionSection,
+  MotionSpan,
+} from "../common/motion-wrapper";
+import { containerVariants, itemVariants } from "@/app/utils/constant";
+
+const buttonVariants = {
+  scale: 1.05,
+  type: "spring",
+  stiffness: 300,
+  damping: 10,
+};
 
 const HomeSection = () => {
   return (
-    <section
+    <MotionSection
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
       className="relative mx-auto flex flex-col z-0 
     items-center justify-center py-16 sm:py-20 lg:pb-28 
     transition-all animate-in lg:px-12 max-w-7xl"
@@ -27,21 +45,25 @@ const HomeSection = () => {
           </Badge>
         </div>
       </div>
-      <h1 className="font-bold text-center py-6">
+      <MotionH1 variants={itemVariants} className="font-bold text-center py-6">
         Transform PDFs into
-        <span className="relative inline-block">
+        <MotionSpan
+          whileHover={buttonVariants}
+          className="relative inline-block"
+        >
           <span className="relative z-10 px-2 inline-block">concise</span>
           <span className="absolute inset-0 bg-rose-200/50 -rotate-2 rounded-lg transform -skew-y-1 " />
-        </span>
+        </MotionSpan>
         summaries
-      </h1>
-      <h2
+      </MotionH1>
+      <MotionH2
+        variants={itemVariants}
         className="text-lg sm:text-xl lg:text-2xl text-center 
       px-4 lg:px-0 lg:max-w-4xl text-gray-600"
       >
         Get a beautiful summary reel of the documents in seconds
-      </h2>
-      <div>
+      </MotionH2>
+      <MotionDiv variants={itemVariants} whileHover={buttonVariants}>
         <Button
           variant={"link"}
           className="text-white sm:mt-6 text-base sm:text-lg lg:text-2xl 
@@ -55,8 +77,8 @@ const HomeSection = () => {
             <ArrowRight className="animate-pulse" />
           </Link>
         </Button>
-      </div>
-    </section>
+      </MotionDiv>
+    </MotionSection>
   );
 };
 

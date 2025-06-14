@@ -1,4 +1,7 @@
 import { Pizza } from "lucide-react";
+import { MotionDiv, MotionH3, MotionSection } from "../common/motion-wrapper";
+import SummaryViewer from "../Summary/summary-viewer";
+import { Summaries } from "@/lib/summaries";
 
 const DemoSection = () => {
   return (
@@ -13,18 +16,29 @@ const DemoSection = () => {
             <Pizza className="w-6 h-6 text-rose-500" />
           </div>
           <div className="text-center mb-16">
-            <h3 className="font-bold text-3xl max-w-2xl mx-auto px-4 sm:px-6">
+            <MotionH3
+              initial={{ y: 40, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="font-bold text-3xl max-w-2xl mx-auto px-4 sm:px-6"
+            >
               Watch how Gistify transforms
               <span className="bg-linear-to-r from-rose-500 to-rose-700 bg-clip-text text-transparent">
                 {" "}
                 this Next.js course pdf
               </span>{" "}
               into an easy-to-read-summary!
-            </h3>
+            </MotionH3>
           </div>
-          <div className="flex justify-center items-center px-2 sm:px-4 lg:px-6">
-            {}
-          </div>
+        </div>
+        <div className="flex justify-center items-center px-2 sm:px-4 lg:px-6">
+          <MotionDiv
+            initial={{ y: 40, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <SummaryViewer summary="demo_summary" />
+          </MotionDiv>
         </div>
       </div>
     </section>

@@ -1,6 +1,12 @@
+import { itemVariants } from "@/app/utils/constant";
 import { EmptySummary } from "@/components/Summary/empty-summary";
 import SummaryCard from "@/components/Summary/page";
 import BgGradient from "@/components/common/bgGradient";
+import {
+  MotionDiv,
+  MotionH1,
+  MotionP,
+} from "@/components/common/motion-wrapper";
 import { Button } from "@/components/ui/button";
 import { Summaries } from "@/lib/summaries";
 import { currentUser } from "@clerk/nextjs/server";
@@ -22,8 +28,16 @@ export default async function DashboardPage() {
       <div className="container mx-auto flex flex-col gap-4">
         <div className="px-2 py-12 sm:py-24">
           <div className="flex gap-4 mb-8 justify-between">
-            <div className="flex flex-col gap-2">
-              <h1
+            <MotionDiv
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="flex flex-col gap-2"
+            >
+              <MotionH1
+                variants={itemVariants}
+                initial="hidden"
+                whileInView={"visible"}
                 className="text-4xl font-bold 
                 tracking-tight 
                 bg-linear-to-r from-gray-600
@@ -31,11 +45,16 @@ export default async function DashboardPage() {
                 text-transparent"
               >
                 Your Summaries
-              </h1>
-              <p className="text-gray-600">
+              </MotionH1>
+              <MotionP
+                variants={itemVariants}
+                initial="hidden"
+                animate="visible"
+                className="text-gray-600"
+              >
                 Transform your PDFs into concise,actionable insights
-              </p>
-            </div>
+              </MotionP>
+            </MotionDiv>
             <Button
               variant={"link"}
               className="bg-linear-to-r from-rose-500
