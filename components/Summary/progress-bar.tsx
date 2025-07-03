@@ -24,7 +24,7 @@ export const ProgressBar = ({
                 " h-full bg-linear-to-r from-gray-500 to-rose-600 transition-all duration-500",
                 index === currentSection
                   ? "w-full"
-                  : "currentSection > index"
+                  : currentSection > index
                   ? "w-full opacity-10"
                   : "w-0"
               )}

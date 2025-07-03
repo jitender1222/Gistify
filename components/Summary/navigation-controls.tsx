@@ -39,7 +39,8 @@ export const NavigationControls = ({
               key={index}
               onClick={() => onSectionSelect(index)}
               className={cn(
-                "w-2 h-2 rounded-ful transition-all duration-300 currentSection===index"
+                "w-2 h-2 rounded-ful transition-all duration-300 ",
+                currentSection === index
                   ? "bg-linear-to-r from-rose-500 to-rtose-600"
                   : "bg-rose-500/2 hover:bg-rose-500/30"
               )}
