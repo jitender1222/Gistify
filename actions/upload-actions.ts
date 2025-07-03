@@ -15,20 +15,8 @@ interface PDfSummaryType {
   fileName: string;
 }
 
-export const generatePdfSummary = async (
-  uploadResponse: [
-    {
-      serverData: {
-        userId: string;
-        file: {
-          url: string;
-          name: string;
-        };
-      };
-    }
-  ]
-) => {
-  if (!uploadResponse) {
+export const generatePdfText = async ({ fileUrl }: { fileUrl: string }) => {
+  if (!fileUrl) {
     return {
       success: false,
       message: "File upload failed",
@@ -36,28 +24,44 @@ export const generatePdfSummary = async (
     };
   }
 
-  const {
-    serverData: {
-      userId,
-      file: { url: pdfUrl, name: fileName },
-    },
-  } = uploadResponse[0];
+  try {
+    const pdfText = await fetchAndExtractPdfText(fileUrl);
 
-  if (!pdfUrl) {
+    if (!pdfText) {
+      return {
+        success: false,
+        message: "File to fetch and extract pdf text",
+        data: null,
+      };
+    }
+    return {
+      success: true,
+      message: "PDF text generated successfully",
+      data: {
+        pdfText,
+      },
+    };
+  } catch (error) {
     return {
       success: false,
-      message: "url generation failed",
+      message: "Failed to fetch and extract pdf text",
       data: null,
     };
   }
+};
 
+export const generatePdfSummary = async ({
+  pdfText,
+  fileName,
+}: {
+  pdfText: string;
+  fileName: string;
+}) => {
   try {
-    const pdfText = await fetchAndExtractPdfText(pdfUrl);
-    console.log("pdfText", pdfText);
     let summary;
     try {
       summary = await generatePdfSummaryFromGEMINI(pdfText);
-      console.log("summary", summary);
+      // console.log("summary", summary);
     } catch (error) {
       console.log("error", error);
       if (error instanceof Error && error.message === "RATE_LIMIT_EXCEEDED") {
@@ -79,20 +83,18 @@ export const generatePdfSummary = async (
         data: null,
       };
     }
-    const formattedFileName = formatFileNameAsTitle(fileName);
-    console.log(formattedFileName);
     return {
       success: true,
       message: "Summary generated successfully",
       data: {
-        title: formattedFileName,
+        title: fileName,
         summary,
       },
     };
   } catch (error) {
     return {
       success: false,
-      message: error,
+      message: "Failed to generate summary",
       data: null,
     };
   }

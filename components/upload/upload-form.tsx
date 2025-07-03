@@ -5,9 +5,14 @@ import UploadFormInput from "./upload-form-input";
 import { toast } from "sonner";
 
 import { z } from "zod";
-import { generatePdfSummary, storePDFSummary } from "@/actions/upload-actions";
+import {
+  generatePdfSummary,
+  generatePdfText,
+  storePDFSummary,
+} from "@/actions/upload-actions";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { formatFileNameAsTitle } from "@/lib/formattedFileName";
 
 const fileUploadSchema = z.object({
   file: z
@@ -37,8 +42,8 @@ const UploadForm = () => {
         description: err.message,
       });
     },
-    onUploadBegin: ({ file }: any) => {
-      console.log("upload has begun for", file);
+    onUploadBegin: (data) => {
+      console.log("upload has begun for", data);
     },
   });
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -64,10 +69,10 @@ const UploadForm = () => {
         description: "We are uploading your pdf",
       });
 
-      const resp = await startUpload([file]);
-      console.log("resp", resp);
+      const uploadResponse = await startUpload([file]);
+      // console.log("resp", uploadResponse);
 
-      if (!resp) {
+      if (!uploadResponse) {
         toast.error("Something went wrong", {
           description: "Please use a different file",
         });
@@ -75,41 +80,56 @@ const UploadForm = () => {
         return;
       }
 
-      await toast.message("📄 pdf uploaded successfully ✅", {
+      await toast.message("📄 Processing PDF ✅", {
         description: "Hang tight! Our AI is reading through your document!✨",
       });
 
       // AI code starts
 
-      const result = await generatePdfSummary(resp);
-      console.log("result", { result });
+      const uploadFileUrl = uploadResponse[0].serverData.fileUrl;
 
-      const { data = null, message = null } = result || {};
+      let storeResult: any;
+      toast.message("📄 Saving PDF ✅", {
+        description: "Hang tight! we are saving your summary✨",
+      });
 
-      if (data) {
-        let storeResult: any;
-        toast.message("📄 Saving PDF ✅", {
-          description: "Hang tight! we are saving your summary✨",
+      // console.log("data", data);
+      // call AI Service
+      const formattedFileName = formatFileNameAsTitle(file.name);
+      const result = await generatePdfText({
+        fileUrl: uploadFileUrl,
+      });
+
+      toast.message("📄 Generating PDF Summary ✅", {
+        description: "Hang tight! Our AI is reading through your document!✨",
+      });
+
+      const summaryResult = await generatePdfSummary({
+        pdfText: result.data?.pdfText ?? "",
+        fileName: formattedFileName,
+      });
+
+      toast.message("📄 Saving PDF Summary ✅", {
+        description: "Hang tight! Our AI is reading through your document!✨",
+      });
+      const { data = null, message = null } = summaryResult || {};
+
+      if (data?.summary) {
+        storeResult = await storePDFSummary({
+          summary: data.summary,
+          fileUrl: uploadFileUrl,
+          title: formattedFileName,
+          fileName: file.name,
         });
 
-        console.log("data", data);
-        if (data.summary) {
-          storeResult = await storePDFSummary({
-            summary: data.summary,
-            fileUrl: resp[0].serverData.file.url,
-            title: data.title,
-            fileName: resp[0].serverData.file.name,
-          });
-          console.log("storeresu;lt", storeResult);
-          toast.message("Summary Generated", {
-            description:
-              "🥳 Your PDF Summary has been summarized and saved successfully",
-          });
+        toast.message("Summary Generated", {
+          description:
+            "🥳 Your PDF Summary has been summarized and saved successfully",
+        });
 
-          formRef.current?.reset();
-          router.push(`/summaries/${storeResult.data.id}`);
-          setLoading(false);
-        }
+        formRef.current?.reset();
+        router.push(`/summaries/${storeResult.data.id}`);
+        setLoading(false);
       }
     } catch (error) {
       toast.error("Error while saving the file");

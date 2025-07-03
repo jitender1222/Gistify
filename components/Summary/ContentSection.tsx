@@ -10,11 +10,11 @@ export const ContentSection = ({
 }) => {
   return (
     <div className="flex flex-col gap-2">
-      {points.map((point) => {
+      {points.map((point, idx) => {
         return (
           <MotionDiv
             variants={containerVariants}
-            key={points.join("")}
+            key={idx}
             initial="hidden"
             animate="visible"
             exit="exit"
